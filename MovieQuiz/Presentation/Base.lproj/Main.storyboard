@@ -123,9 +123,9 @@
                     <connections>
                         <outlet property="counterLabel" destination="FCc-2A-4hH" id="aPK-8M-KnY"/>
                         <outlet property="imageView" destination="KKx-ta-Mcg" id="V3N-Ao-x7g"/>
-                        <outlet property="noButtom" destination="Bxl-uY-K0Q" id="iSr-Te-2Lz"/>
+                        <outlet property="noButtom" destination="Bxl-uY-K0Q" id="vZv-3X-msq"/>
                         <outlet property="textLabel" destination="I84-EA-5nx" id="KLH-Ch-G1f"/>
-                        <outlet property="yesButtom" destination="Ddj-py-QLa" id="pVp-R9-E0B"/>
+                        <outlet property="yesButtom" destination="Ddj-py-QLa" id="Fkb-mG-usV"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

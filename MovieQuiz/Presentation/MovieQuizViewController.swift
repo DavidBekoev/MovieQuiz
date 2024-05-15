@@ -4,7 +4,6 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         let currentQuestion = questions[currentQuestionIndex]
         let preparedImage = convert (model: currentQuestion)
         show(quiz: preparedImage)
@@ -96,15 +95,26 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.activateButtons()
+            self.imageView.layer.borderWidth = 0
             self.showNextQuestionOrResults()
-           
         }
     }
-    
+
     @IBOutlet weak var noButtom: UIButton!
     
     @IBOutlet weak var yesButtom: UIButton!
-
+    
+   private func activateButtons(){
+        noButtom.isEnabled = true
+        yesButtom.isEnabled = true
+    }
+    private func deactivateButtons (){
+        noButtom.isEnabled = false
+        yesButtom.isEnabled = false
+    }
+    
+    
     private func showNextQuestionOrResults() {
         if currentQuestionIndex == questions.count - 1 {
             let text = "Ваш результат: \(correctAnswers)/10"
@@ -154,14 +164,16 @@ final class MovieQuizViewController: UIViewController {
     
    
     @IBAction private func noButtonClicked(_ sender: Any) {
+        deactivateButtons()
         let currentQuestion = questions[currentQuestionIndex]
             let givenAnswer = false
-            
-            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
         
     }
     
     @IBAction private func yesButtonClicked(_ sender: Any) {
+       deactivateButtons()
         let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = true
         
