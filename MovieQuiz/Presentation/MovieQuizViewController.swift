@@ -1,12 +1,14 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate{
+    
     // MARK: - Lifecycle
     private let questionsAmount: Int = 10
     private var currentQuestion: QuizQuestion?
     private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
+    private var alertDelegate: AlertPresenterProtocol?
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
@@ -18,6 +20,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory.setup(delegate: self)
         self.questionFactory = questionFactory
         questionFactory.requestNextQuestion()
+        
+        let alertDelegate = AlertPresenter()
+        alertDelegate.alertController = self
+        self.alertDelegate = alertDelegate
     }
     
     
@@ -82,14 +88,19 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         
         private func showNextQuestionOrResults() {
             if currentQuestionIndex == questionsAmount - 1 {
-                let text = correctAnswers == questionsAmount ?
-                "Поздравляем, вы ответили на 10 из 10!" :
-                "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
-                let viewModel = QuizResultsViewModel(
+                let text = "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
+                let alertModel = AlertModel(
                     title: "Этот раунд окончен!",
-                    text: text,
-                    buttonText: "Сыграть ещё раз")
-                show(quiz: viewModel)
+                    message: text,
+                    buttonText: "Сыграть еще раз",
+                    completion: {[weak self] in
+                    self?.currentQuestionIndex = 1
+                    self?.correctAnswers = 0
+                    self?.questionFactory.requestNextQuestion()
+                })
+                               //alertDelegate.showResult(alertModel: alertModel)
+                alertDelegate!.show(alertModel: alertModel)
+                correctAnswers = 0
                 
             } else {
                 currentQuestionIndex += 1
@@ -100,27 +111,28 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             
         
         
-        private func show(quiz result: QuizResultsViewModel) {
-            let alert = UIAlertController(
-                title: result.title,
-                message: result.text,
-                preferredStyle: .alert)
+    func show(quiz result: QuizResultsViewModel) {
+        let alert = UIAlertController(
+            title: result.title,
+            message: result.text,
+            preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
+            guard let self = self else { return }
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
             
-            let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
-                self.currentQuestionIndex = 0
-                self.correctAnswers = 0
-                
-                self.questionFactory.requestNextQuestion()
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-                guard let self = self else { return }
-                self.showNextQuestionOrResults()
-            }
-            
-            alert.addAction(action)
-            
-            self.present(alert, animated: true, completion: nil)
+            self.questionFactory.requestNextQuestion()
         }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.showNextQuestionOrResults()
+        }
+        
+        alert.addAction(action)
+        
+        self.present(alert, animated: true, completion: nil)
+    }
         
         
         
