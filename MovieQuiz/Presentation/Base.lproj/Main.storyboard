@@ -3,7 +3,7 @@
     <device id="retina6_12" orientation="portrait" appearance="dark"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22684"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -121,10 +121,10 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="counterLabel" destination="FCc-2A-4hH" id="aPK-8M-KnY"/>
-                        <outlet property="imageView" destination="KKx-ta-Mcg" id="V3N-Ao-x7g"/>
+                        <outlet property="counterLabel" destination="FCc-2A-4hH" id="ynR-Kp-IQH"/>
+                        <outlet property="imageView" destination="KKx-ta-Mcg" id="YMx-l0-UAh"/>
                         <outlet property="noButtom" destination="Bxl-uY-K0Q" id="vZv-3X-msq"/>
-                        <outlet property="textLabel" destination="I84-EA-5nx" id="KLH-Ch-G1f"/>
+                        <outlet property="textLabel" destination="I84-EA-5nx" id="5ZU-vd-9oA"/>
                         <outlet property="yesButtom" destination="Ddj-py-QLa" id="Fkb-mG-usV"/>
                     </connections>
                 </viewController>

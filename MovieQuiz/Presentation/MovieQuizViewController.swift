@@ -1,136 +1,152 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     // MARK: - Lifecycle
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        let currentQuestion = questions[currentQuestionIndex]
-        let preparedImage = convert (model: currentQuestion)
-        show(quiz: preparedImage)
-    }
+    private let questionsAmount: Int = 10
+    private var currentQuestion: QuizQuestion?
+    private var questionFactory: QuestionFactoryProtocol = QuestionFactory()
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
-    
-    
-   
-   
-   
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        let questionStep = QuizStepViewModel(
-            image: UIImage(named: model.image) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questions.count)")
-        return questionStep
-        
+        let questionFactory = QuestionFactory()
+        questionFactory.setup(delegate: self)
+        self.questionFactory = questionFactory
+        questionFactory.requestNextQuestion()
     }
     
-    private func show(quiz step: QuizStepViewModel) {
-      imageView.image = step.image
-      textLabel.text = step.question
-      counterLabel.text = step.questionNumber
-        
-    }
     
-    private func showAnswerResult(isCorrect: Bool) {
-        if isCorrect {
-            correctAnswers += 1
+    
+    // MARK: - QuestionFactoryDelegate
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        guard let question = question else {
+            return
         }
+           currentQuestion = question
+           let viewModel = convert(model: question)
+           
+           DispatchQueue.main.async { [weak self] in
+               self?.show(quiz: viewModel)
+           }
+    }
+    
+       private func convert(model: QuizQuestion) -> QuizStepViewModel {
+       let questionStep = QuizStepViewModel(
+           image: UIImage(named: model.image) ?? UIImage(),
+           question: model.text,
+           questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
+       return questionStep
+       
+   }
         
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.activateButtons()
-            self.imageView.layer.borderWidth = 0
-            self.showNextQuestionOrResults()
-        }
+        private func show(quiz step: QuizStepViewModel) {
+        imageView.image = step.image
+        textLabel.text = step.question
+        counterLabel.text = step.questionNumber
     }
-
-    @IBOutlet weak var noButtom: UIButton!
-    
-    @IBOutlet weak var yesButtom: UIButton!
-    
-   private func activateButtons(){
-        noButtom.isEnabled = true
-        yesButtom.isEnabled = true
-    }
-    private func deactivateButtons (){
-        noButtom.isEnabled = false
-        yesButtom.isEnabled = false
-    }
-    
-    
-    private func showNextQuestionOrResults() {
-        if currentQuestionIndex == questions.count - 1 {
-            let text = "Ваш результат: \(correctAnswers)/10"
-            let viewModel = QuizResultsViewModel(
-                title: "Этот раунд окончен!",
-                text: text,
-                buttonText: "Сыграть ещё раз")
-            show(quiz: viewModel)
             
-        } else {
-            currentQuestionIndex += 1
-            let nextQuestion = questions[currentQuestionIndex]
-            let viewModel = convert(model: nextQuestion)
+        private func showAnswerResult(isCorrect: Bool) {
+            if isCorrect {
+                correctAnswers += 1
+            }
             
-            show(quiz: viewModel)
-        }
-        
-    }
-    
-    
-    
- 
-    private func show(quiz result: QuizResultsViewModel) {
-        let alert = UIAlertController(
-            title: result.title,
-            message: result.text,
-            preferredStyle: .alert)
-        
-        let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
+            imageView.layer.masksToBounds = true
+            imageView.layer.borderWidth = 8
+            imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
             
-            let firstQuestion = self.questions[self.currentQuestionIndex]
-            let viewModel = self.convert(model: firstQuestion)
-            self.show(quiz: viewModel)
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.showNextQuestionOrResults()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                self.activateButtons()
+                self.imageView.layer.borderWidth = 0
+                self.showNextQuestionOrResults()
+            }
         }
         
-        alert.addAction(action)
+        @IBOutlet weak var noButtom: UIButton!
         
-        self.present(alert, animated: true, completion: nil)
-    }
-   
-    
-   
-    @IBAction private func noButtonClicked(_ sender: Any) {
-        deactivateButtons()
-        let currentQuestion = questions[currentQuestionIndex]
+        @IBOutlet weak var yesButtom: UIButton!
+        
+        private func activateButtons(){
+            noButtom.isEnabled = true
+            yesButtom.isEnabled = true
+        }
+        private func deactivateButtons (){
+            noButtom.isEnabled = false
+            yesButtom.isEnabled = false
+        }
+        
+        
+        private func showNextQuestionOrResults() {
+            if currentQuestionIndex == questionsAmount - 1 {
+                let text = correctAnswers == questionsAmount ?
+                "Поздравляем, вы ответили на 10 из 10!" :
+                "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
+                let viewModel = QuizResultsViewModel(
+                    title: "Этот раунд окончен!",
+                    text: text,
+                    buttonText: "Сыграть ещё раз")
+                show(quiz: viewModel)
+                
+            } else {
+                currentQuestionIndex += 1
+               
+                }
+            self.questionFactory.requestNextQuestion()
+            }
+            
+        
+        
+        private func show(quiz result: QuizResultsViewModel) {
+            let alert = UIAlertController(
+                title: result.title,
+                message: result.text,
+                preferredStyle: .alert)
+            
+            let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
+                self.currentQuestionIndex = 0
+                self.correctAnswers = 0
+                
+                self.questionFactory.requestNextQuestion()
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                guard let self = self else { return }
+                self.showNextQuestionOrResults()
+            }
+            
+            alert.addAction(action)
+            
+            self.present(alert, animated: true, completion: nil)
+        }
+        
+        
+        
+        @IBAction private func noButtonClicked(_ sender: Any) {
+            deactivateButtons()
+            guard let currentQuestion = currentQuestion else {
+                return
+            }
             let givenAnswer = false
+            
+            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+            
+        }
         
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        @IBAction private func yesButtonClicked(_ sender: Any) {
+            deactivateButtons()
+            guard let currentQuestion = currentQuestion else {
+                return
+            }
+            let givenAnswer = true
+            
+            showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        }
+        
         
     }
     
-    @IBAction private func yesButtonClicked(_ sender: Any) {
-       deactivateButtons()
-        let currentQuestion = questions[currentQuestionIndex]
-        let givenAnswer = true
-        
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-    }
-                             
     
-}
-                             
+
