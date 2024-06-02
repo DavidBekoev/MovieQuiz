@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate{
+final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - Lifecycle
     private let questionsAmount: Int = 10
@@ -9,13 +9,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate{
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private var alertDelegate: AlertPresenterProtocol?
+    private let statisticService = StatisticService()
+
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+      
         let questionFactory = QuestionFactory()
         questionFactory.setup(delegate: self)
         self.questionFactory = questionFactory
@@ -88,7 +90,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate{
         
         private func showNextQuestionOrResults() {
             if currentQuestionIndex == questionsAmount - 1 {
-                let text = "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
+                statisticService.store(correct: correctAnswers, total: questionsAmount)
+                            let bestGame = statisticService.bestGame
+                let currentGameResultLine = "Ваш результат: \(correctAnswers)/\(questionsAmount)"
+                            let totalPlaysCountLine = "Количество сыгранных квизов: \(statisticService.gamesCount)"
+                            let bestGameInfoLine = "Рекорд: \(bestGame.correct)/\(questionsAmount)"
+                            + " (\(bestGame.date.dateTimeString))"
+                            let averageAccuracyLine = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
+
+                            let text = [currentGameResultLine, totalPlaysCountLine, bestGameInfoLine, averageAccuracyLine].joined(separator: "\n")
                 let alertModel = AlertModel(
                     title: "Этот раунд окончен!",
                     message: text,
@@ -98,7 +108,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate{
                     self?.correctAnswers = 0
                     self?.questionFactory.requestNextQuestion()
                 })
-                               //alertDelegate.showResult(alertModel: alertModel)
+                              
                 alertDelegate!.show(alertModel: alertModel)
                 correctAnswers = 0
                 
@@ -111,7 +121,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate{
             
         
         
-    func show(quiz result: QuizResultsViewModel) {
+    private func show(quiz result: QuizResultsViewModel) {
         let alert = UIAlertController(
             title: result.title,
             message: result.text,
