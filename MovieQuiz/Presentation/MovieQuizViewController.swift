@@ -17,7 +17,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-      
+        
         let questionFactory = QuestionFactory()
         questionFactory.setup(delegate: self)
         self.questionFactory = questionFactory
@@ -87,37 +87,35 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             yesButtom.isEnabled = false
         }
         
-        
-        private func showNextQuestionOrResults() {
-            if currentQuestionIndex == questionsAmount - 1 {
-                statisticService.store(correct: correctAnswers, total: questionsAmount)
-                            let bestGame = statisticService.bestGame
-                let currentGameResultLine = "Ваш результат: \(correctAnswers)/\(questionsAmount)"
-                            let totalPlaysCountLine = "Количество сыгранных квизов: \(statisticService.gamesCount)"
-                            let bestGameInfoLine = "Рекорд: \(bestGame.correct)/\(questionsAmount)"
-                            + " (\(bestGame.date.dateTimeString))"
-                            let averageAccuracyLine = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
+    func showNextQuestionOrResults() {
+          if currentQuestionIndex == questionsAmount - 1 {
+              statisticService.store(correct: correctAnswers, total: questionsAmount)
+              let bestGame = statisticService.bestGame
+              imageView.layer.borderColor = CGColor(gray: 0.0, alpha: 0)
+              let text = """
+  Ваш результат: \(correctAnswers)/\(questionsAmount)
+  Количество сыгранных квизов: \(statisticService.gamesCount)
+  Рекорд: \(bestGame.correct)/\(questionsAmount) (\(String(describing: bestGame.date.dateTimeString)))
+  Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
+  """
+              let alertModel = AlertModel(
+                  title: "Этот раунд окончен!",
+                  message: text,
+                  buttonText: "Сыграть еще раз",
+                  completion: {
+                      self.currentQuestionIndex = 0
+                      self.correctAnswers = 0
+                      self.questionFactory.requestNextQuestion()
+                  })
+              alertDelegate?.show(alertModel: alertModel)
+              correctAnswers = 0
+          } else {
+              currentQuestionIndex += 1
+              questionFactory.requestNextQuestion()
+          }
+      }
 
-                            let text = [currentGameResultLine, totalPlaysCountLine, bestGameInfoLine, averageAccuracyLine].joined(separator: "\n")
-                let alertModel = AlertModel(
-                    title: "Этот раунд окончен!",
-                    message: text,
-                    buttonText: "Сыграть еще раз",
-                    completion: {[weak self] in
-                    self?.currentQuestionIndex = 1
-                    self?.correctAnswers = 0
-                    self?.questionFactory.requestNextQuestion()
-                })
-                              
-                alertDelegate!.show(alertModel: alertModel)
-                correctAnswers = 0
-                
-            } else {
-                currentQuestionIndex += 1
-               
-                }
-            self.questionFactory.requestNextQuestion()
-            }
+       
             
         
         
