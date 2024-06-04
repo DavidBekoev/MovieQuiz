@@ -10,9 +10,12 @@
 final class AlertPresenter:  AlertPresenterProtocol {
     
     weak var alertController: UIViewController?
-    
     func show(alertModel: AlertModel) {
-        let alert = UIAlertController(title: alertModel.title, message: alertModel.message, preferredStyle: .alert)
+        let alert = UIAlertController(
+                   title: alertModel.title,
+                   message: alertModel.message,
+                   preferredStyle: .alert
+               )
         alert.view.accessibilityIdentifier = "Game Result"
         
         let action = UIAlertAction(title: alertModel.buttonText, style: .default) { _ in

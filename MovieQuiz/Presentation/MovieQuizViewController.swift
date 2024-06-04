@@ -1,6 +1,8 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+   
+    
     
     // MARK: - Lifecycle
     private let questionsAmount: Int = 10
@@ -9,15 +11,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private var alertDelegate: AlertPresenterProtocol?
-    private let statisticService = StatisticService()
-
+    private var statisticService: StatisticServiceProtocol?
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        statisticService = StatisticService()
         let questionFactory = QuestionFactory()
         questionFactory.setup(delegate: self)
         self.questionFactory = questionFactory
@@ -87,39 +88,38 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             yesButtom.isEnabled = false
         }
         
-    func showNextQuestionOrResults() {
-          if currentQuestionIndex == questionsAmount - 1 {
-              statisticService.store(correct: correctAnswers, total: questionsAmount)
-              let bestGame = statisticService.bestGame
-              imageView.layer.borderColor = CGColor(gray: 0.0, alpha: 0)
-              let text = """
-  Ваш результат: \(correctAnswers)/\(questionsAmount)
-  Количество сыгранных квизов: \(statisticService.gamesCount)
-  Рекорд: \(bestGame.correct)/\(questionsAmount) (\(String(describing: bestGame.date.dateTimeString)))
-  Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
-  """
-              let alertModel = AlertModel(
-                  title: "Этот раунд окончен!",
-                  message: text,
-                  buttonText: "Сыграть еще раз",
-                  completion: {
-                      self.currentQuestionIndex = 0
-                      self.correctAnswers = 0
-                      self.questionFactory.requestNextQuestion()
-                  })
-              alertDelegate?.show(alertModel: alertModel)
-              correctAnswers = 0
-          } else {
-              currentQuestionIndex += 1
-              questionFactory.requestNextQuestion()
-          }
-      }
-
+        private func showNextQuestionOrResults() {
+            if currentQuestionIndex == questionsAmount - 1 {
+                statisticService?.store(correct: correctAnswers, total: questionsAmount)
+                let bestGame = statisticService?.bestGame
+                imageView.layer.borderColor = CGColor(gray: 0.0, alpha: 0)
+                let text = """
+    Ваш результат: \(correctAnswers)/\(questionsAmount)
+    Количество сыгранных квизов: \(statisticService?.gamesCount ?? 0)
+    Рекорд: \(bestGame?.correct ?? 0)/\(questionsAmount) (\(String(describing: bestGame?.date.dateTimeString ?? "")))
+    Средняя точность: \(String(format: "%.2f", statisticService?.totalAccuracy ?? ""))%
+    """
+                let alertModel = AlertModel(
+                    title: "Этот раунд окончен!",
+                    message: text,
+                    buttonText: "Сыграть еще раз",
+                    completion: {
+                        self.currentQuestionIndex = 0
+                        self.correctAnswers = 0
+                        self.questionFactory.requestNextQuestion()
+                    })
+                alertDelegate?.show(alertModel: alertModel)
+                correctAnswers = 0
+            } else {
+                currentQuestionIndex += 1
+                questionFactory.requestNextQuestion()
+            }
+        }
        
             
         
         
-    private func show(quiz result: QuizResultsViewModel) {
+      private func show(quiz result: QuizResultsViewModel) {
         let alert = UIAlertController(
             title: result.title,
             message: result.text,
