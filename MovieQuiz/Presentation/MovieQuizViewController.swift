@@ -15,6 +15,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var textLabel: UILabel!
     @IBOutlet private var counterLabel: UILabel!
+    @IBOutlet weak var noButtom: UIButton!
+    @IBOutlet weak var yesButtom: UIButton!
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,11 +35,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     
     
+    
     // MARK: - QuestionFactoryDelegate
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
+      func didReceiveNextQuestion(question: QuizQuestion?) {
+          guard let question = question else {
             return
         }
+        
            currentQuestion = question
            let viewModel = convert(model: question)
            
@@ -75,9 +81,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             }
         }
         
-        @IBOutlet weak var noButtom: UIButton!
-        
-        @IBOutlet weak var yesButtom: UIButton!
         
         private func activateButtons(){
             noButtom.isEnabled = true

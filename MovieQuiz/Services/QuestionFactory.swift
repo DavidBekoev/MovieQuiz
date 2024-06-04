@@ -21,13 +21,13 @@ final class QuestionFactory: QuestionFactoryProtocol {
         return
     }
     
-    let question = questions[safe: index]
+        let question = questions[safe: index]
     delegate?.didReceiveNextQuestion(question: question)
 }
     
     
     
-    private let questions: [QuizQuestion] = [
+     private let questions: [QuizQuestion] = [
         QuizQuestion(
             image: "The Godfather",
             text: "Рейтинг этого фильма больше чем 6?",
