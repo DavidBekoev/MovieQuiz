@@ -10,4 +10,6 @@ import UIKit
 protocol AlertPresenterProtocol {
     var alertController: UIViewController? { get set }
     func show(alertModel: AlertModel)
+    
+    
 }

@@ -25,7 +25,9 @@ final class QuestionFactory: QuestionFactoryProtocol {
     delegate?.didReceiveNextQuestion(question: question)
 }
     
-    
+   // Параллельные очереди (concurrent)
+
+
     
      private let questions: [QuizQuestion] = [
         QuizQuestion(

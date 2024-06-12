@@ -1,7 +1,7 @@
 import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
-   
+    
     
     
     // MARK: - Lifecycle
@@ -18,6 +18,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet weak var noButtom: UIButton!
     @IBOutlet weak var yesButtom: UIButton!
     
+    @IBOutlet private var activityIndicator: UIActivityIndicatorView!
     
     
     override func viewDidLoad() {
@@ -37,18 +38,49 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     
     // MARK: - QuestionFactoryDelegate
-      func didReceiveNextQuestion(question: QuizQuestion?) {
-          guard let question = question else {
-            return
+        func didReceiveNextQuestion(question: QuizQuestion?) {
+                 guard let question = question else {
+                   return
+               }
+             currentQuestion = question
+    }
+    
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true // скрываем индикатор загрузки
+           questionFactory?.requestNextQuestion()
+
+    }
+
+    func didFailToLoadData(with error: Error) {
+        showNetworkError(message: error.localizedDescription) // возьмём в качестве сообщения описание ошибки
+       }
+
+    
+    
+       private func showLoadingIndicator() {
+        activityIndicator.isHidden = false // говорим, что индикатор загрузки не скрыт
+        activityIndicator.startAnimating() // включаем анимацию
+    }
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let model = AlertModel(title: "Ошибка",
+                               message: message,
+                               buttonText: "Попробовать еще раз") { [weak self] in
+            guard let self = self else { return }
+            
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            
+            self.questionFactory?.requestNextQuestion()
         }
         
-           currentQuestion = question
-           let viewModel = convert(model: question)
-           
-           DispatchQueue.main.async { [weak self] in
-               self?.show(quiz: viewModel)
-           }
+        alertPresenter.show(in: self, model: model)
     }
+    
+    
+   
     
        private func convert(model: QuizQuestion) -> QuizStepViewModel {
        let questionStep = QuizStepViewModel(
@@ -145,7 +177,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         self.present(alert, animated: true, completion: nil)
     }
         
-        
+    
         
         @IBAction private func noButtonClicked(_ sender: Any) {
             deactivateButtons()
