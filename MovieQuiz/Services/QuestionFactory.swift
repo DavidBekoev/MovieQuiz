@@ -15,26 +15,29 @@ final class QuestionFactory: QuestionFactoryProtocol {
     init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
           self.moviesLoader = moviesLoader
           self.delegate = delegate
+        
       }
+    
+   
     
     func loadData() {
         moviesLoader.loadMovies { [weak self] result in
-              DispatchQueue.main.async {
-                  guard let self = self else { return }
-                  switch result {
-                  case .success(let mostPopularMovies):
-                      self.movies = mostPopularMovies.items
-                      self.delegate?.didLoadDataFromServer()
-                  case .failure(let error):
-                      self.delegate?.didFailToLoadData(with: error)
-                  }
-              }
-          }
-     
-     }
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let mostPopularMovies):
+                    self.movies = mostPopularMovies.items
+                    self.delegate?.didLoadDataFromServer()
+                case .failure(let error):
+                    self.delegate?.didFailToLoadData(with: error)
+                }
+            }
+        }
+    }  
     
     
     func setup(delegate: QuestionFactoryDelegate) {
+      
            self.delegate = delegate
        }
     
@@ -46,9 +49,14 @@ final class QuestionFactory: QuestionFactoryProtocol {
             guard let movie = self.movies[safe: index] else { return }
             
             var imageData = Data()
+            do {
+                      imageData = try Data(contentsOf: movie.imageURL)
+                  } catch {
+                      print("Failed to load image")
+                  }
             
             do {
-                imageData = try Data(contentsOf: movie.imageURL)
+                imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
                 print("Failed to load image")
             }
