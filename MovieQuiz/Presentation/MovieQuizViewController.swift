@@ -52,15 +52,19 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                    return
                }
              currentQuestion = question
+           let viewModel = convert(model: question)
+            DispatchQueue.main.async { [weak self] in
+                     self?.show(quiz: viewModel)
+                 }
     }
     
-    func didLoadDataFromServer() {
+       func didLoadDataFromServer() {
         activityIndicator.isHidden = true // скрываем индикатор загрузки
         questionFactory?.requestNextQuestion()
 
     }
 
-    func didFailToLoadData(with error: Error) {
+       func didFailToLoadData(with error: Error) {
         showNetworkError(message: error.localizedDescription) // возьмём в качестве сообщения описание ошибки
        }
 
@@ -71,6 +75,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         activityIndicator.startAnimating() // включаем анимацию
     }
     private func hideLoadingIndicator() {
+        activityIndicator.isHidden = false
+               activityIndicator.stopAnimating()
        
     }
     
@@ -92,14 +98,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     
-   
-    
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        return QuizStepViewModel(
+        let questionStep = QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
+            questionNumber: "\(currentQuestionIndex + 1) / \(questionsAmount)")
+        return questionStep
     }
+   
     
         
         private func show(quiz step: QuizStepViewModel) {
