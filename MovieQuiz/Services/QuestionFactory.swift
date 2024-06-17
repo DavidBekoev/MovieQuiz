@@ -20,6 +20,9 @@ final class QuestionFactory: QuestionFactoryProtocol {
     
    
     
+    
+   
+    
     func loadData() {
         moviesLoader.loadMovies { [weak self] result in
             DispatchQueue.main.async {
@@ -30,22 +33,24 @@ final class QuestionFactory: QuestionFactoryProtocol {
                     self.delegate?.didLoadDataFromServer()
                 case .failure(let error):
                     self.delegate?.didFailToLoadData(with: error)
+                    
                 }
             }
         }
-    }  
+    }
+    
     
     
     func setup(delegate: QuestionFactoryDelegate) {
-      
-           self.delegate = delegate
+      self.delegate = delegate
+       
        }
     
     func requestNextQuestion() {
         DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
             let index = (0..<self.movies.count).randomElement() ?? 0
-            
+         
             guard let movie = self.movies[safe: index] else { return }
             
             var imageData = Data()
@@ -73,11 +78,11 @@ final class QuestionFactory: QuestionFactoryProtocol {
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 self.delegate?.didReceiveNextQuestion(question: question)
+                
             }
         }
     }
-    
-   // Параллельные очереди (concurrent)
+
 
 
     
