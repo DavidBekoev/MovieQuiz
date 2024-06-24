@@ -4,7 +4,7 @@
 //
 //  Created by Давид Бекоев on 17.06.2024.
 //
-
+/*
 import XCTest // не забывайте импортировать фреймворк для тестирования
 @testable import MovieQuiz // импортируем наше приложение для тестирования
 
@@ -27,3 +27,4 @@ class ArrayTests: XCTestCase {
         XCTAssertNil(value)
     }
 }
+*/

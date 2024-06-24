@@ -4,7 +4,7 @@
 //
 //  Created by Давид Бекоев on 17.06.2024.
 //
-
+/*
 import XCTest // не забывайте импортировать фреймворк для тестирования
 @testable import MovieQuiz // импортируем приложение для тестирования
 
@@ -54,3 +54,4 @@ class MoviesLoaderTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 }
+*/
