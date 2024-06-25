@@ -5,22 +5,22 @@
 //  Created by Давид Бекоев on 23.06.2024.
 //
 
-import Foundation
+
 import UIKit
 
 final class MovieQuizPresenter: QuestionFactoryDelegate {
    private var correctAnswers = 0
-   private var questionFactory: QuestionFactoryProtocol?
+    private weak var viewController: MovieQuizViewControllerProtocol?
+ //  private var questionFactory: QuestionFactoryProtocol?
    private let statisticService: StatisticServiceProtocol!
    private var alertDelegate: AlertPresenterProtocol?
    private var imageView: UIImageView!
-  //  @IBOutlet weak private var noButtom: UIButton!
-  //  @IBOutlet weak private var yesButtom: UIButton!
+    var questionFactory: QuestionFactory?
    private let questionsAmount: Int = 10
    private var currentQuestionIndex = 0
    private  var currentQuestion: QuizQuestion?
-   private weak var viewController: MovieQuizViewController?
-    init(viewController: MovieQuizViewController) {
+  // private weak var viewController: MovieQuizViewController?
+    init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         
         statisticService = StatisticService()
@@ -28,6 +28,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
+       
     }
   
     
@@ -50,7 +51,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         let viewModel = convert(model: question)
         DispatchQueue.main.async { [weak self] in
             self?.viewController?.show(quiz: viewModel)
-            // self?.activateButtons()
+         self?.viewController?.activateButtons()
         }
     }
         
@@ -74,7 +75,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
           } else {
               self.switchToNextQuestion()
               questionFactory?.requestNextQuestion()
-              viewController?.activateButtons()
           }
       }
    
@@ -173,14 +173,5 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
               
           }
       }
-    /*
-    private func activateButtons(){
-        noButtom.isEnabled = true
-        yesButtom.isEnabled = true
-    }
-    private func deactivateButtons (){
-        noButtom.isEnabled = false
-        yesButtom.isEnabled = false
-    }
-   */
+    
 }

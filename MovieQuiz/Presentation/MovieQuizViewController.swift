@@ -1,8 +1,5 @@
 import UIKit
-final class MovieQuizViewController: UIViewController {
-    
-    
-    
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     
     // MARK: - Lifecycle
     
@@ -45,6 +42,7 @@ final class MovieQuizViewController: UIViewController {
             self.presenter.restartGame()
         }
         alertDelegate?.show(alertModel: model)
+        
     }
     
     
