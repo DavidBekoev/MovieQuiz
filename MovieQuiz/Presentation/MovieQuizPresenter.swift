@@ -14,6 +14,8 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
    private let statisticService: StatisticServiceProtocol!
    private var alertDelegate: AlertPresenterProtocol?
    private var imageView: UIImageView!
+  //  @IBOutlet weak private var noButtom: UIButton!
+  //  @IBOutlet weak private var yesButtom: UIButton!
    private let questionsAmount: Int = 10
    private var currentQuestionIndex = 0
    private  var currentQuestion: QuizQuestion?
@@ -58,40 +60,30 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                questionFactory?.requestNextQuestion()
            }
            
-    
-    func proceedToNextQuestionOrResults() {
-        if self.currentQuestionIndex == questionsAmount - 1 {
-           statisticService?.store(correct: correctAnswers, total: questionsAmount)
-           let bestGame = statisticService?.bestGame
-           imageView.layer.borderColor = CGColor(gray: 0.0, alpha: 0)
-           let text = """
-   Ваш результат: \(correctAnswers)/\(questionsAmount)
-   Количество сыгранных квизов: \(statisticService?.gamesCount ?? 0)
-   Рекорд: \(bestGame?.correct ?? 0)/\(questionsAmount) (\(String(describing: bestGame?.date.dateTimeString ?? "")))
-   Средняя точность: \(String(format: "%.2f", statisticService?.totalAccuracy ?? ""))%
-   """
-           let alertModel = AlertModel(
-               title: "Этот раунд окончен!",
-               message: text,
-               buttonText: "Сыграть еще раз",
-               completion: {
-                   self.currentQuestionIndex = 0
-                   self.correctAnswers = 0
-                   self.questionFactory?.requestNextQuestion()
-               })
-           alertDelegate?.show(alertModel: alertModel)
-           correctAnswers = 0
-       } else {
-           currentQuestionIndex += 1
-           questionFactory?.requestNextQuestion()
-       }
-   }
+     func proceedToNextQuestionOrResults() {
+          if self.isLastQuestion() {
+              let text = correctAnswers == self.questionsAmount ?
+              "Поздравляем, вы ответили на 10 из 10!" :
+              "Вы ответили на \(correctAnswers) из 10, попробуйте ещё раз!"
+
+              let viewModel = QuizResultsViewModel(
+                  title: "Этот раунд окончен!",
+                  text: text,
+                  buttonText: "Сыграть ещё раз")
+                  viewController?.show(quiz: viewModel)
+          } else {
+              self.switchToNextQuestion()
+              questionFactory?.requestNextQuestion()
+              viewController?.activateButtons()
+          }
+      }
+   
     
     
     func didAnswer(isCorrectAnswer: Bool) {
            if isCorrectAnswer {
                correctAnswers += 1
-           }
+          }
        }
     
     
@@ -117,10 +109,12 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     func yesButtonClicked() {
         didAnswer(isYes: true)
+       
     }
     
     func noButtonClicked() {
         didAnswer(isYes: false)
+        
     }
     
     func didAnswer(isYes: Bool) {
@@ -130,9 +124,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             
               let givenAnswer = isYes
             
-               viewController?.presenter.proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
         
     }
+    
     func makeResultsMessage() -> String {
            statisticService.store(correct: correctAnswers, total: questionsAmount)
            
@@ -150,14 +145,18 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
            
            return resultMessage
        }
+     
     func proceedWithAnswer(isCorrect: Bool) {
         didAnswer(isCorrectAnswer: isCorrect)
-       //   if isCorrect {
-       //       correctAnswers += 1
-       //   }
-          imageView.layer.masksToBounds = true
-          imageView.layer.borderWidth = 8
-          imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+      //    if isCorrect {
+      //        correctAnswers += 1
+      //    }
+        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+
+
+    //      imageView.layer.masksToBounds = true
+    //      imageView.layer.borderWidth = 8
+    //      imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0)  {
               //guard let self = self else { return }
              // self.showNextQuestionOrResults()
@@ -166,14 +165,22 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                       
               // self.presenter.correctAnswers = self.correctAnswers
            //    self.presenter.questionFactory = self.questionFactory
-               self.alertDelegate = self.alertDelegate
-               self.imageView = self.imageView
+           //    self.alertDelegate = self.alertDelegate
+           //    self.imageView = self.imageView
          //      self.presenter.statisticService = self.statisticService
-              self.imageView.layer.borderWidth = 0
+         //     self.imageView.layer.borderWidth = 0
                self.proceedToNextQuestionOrResults()
               
           }
       }
-    
-   
+    /*
+    private func activateButtons(){
+        noButtom.isEnabled = true
+        yesButtom.isEnabled = true
+    }
+    private func deactivateButtons (){
+        noButtom.isEnabled = false
+        yesButtom.isEnabled = false
+    }
+   */
 }
