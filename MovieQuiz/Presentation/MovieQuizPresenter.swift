@@ -11,11 +11,11 @@ import UIKit
 final class MovieQuizPresenter: QuestionFactoryDelegate {
    private var correctAnswers = 0
     private weak var viewController: MovieQuizViewControllerProtocol?
- //  private var questionFactory: QuestionFactoryProtocol?
+   private var questionFactory: QuestionFactoryProtocol?
    private let statisticService: StatisticServiceProtocol!
    private var alertDelegate: AlertPresenterProtocol?
    private var imageView: UIImageView!
-    var questionFactory: QuestionFactory?
+  //  var questionFactory: QuestionFactory?
    private let questionsAmount: Int = 10
    private var currentQuestionIndex = 0
    private  var currentQuestion: QuizQuestion?
@@ -98,6 +98,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     func switchToNextQuestion() {
         currentQuestionIndex += 1
     }
+    
     
     func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(

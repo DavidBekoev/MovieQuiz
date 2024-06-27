@@ -2,7 +2,7 @@
 //  MovieQuizTests.swift
 //  MovieQuizTests
 //
-//  Created by Давид Бекоев on 25.06.2024.
+//  Created by Давид Бекоев on 27.06.2024.
 //
 
 import XCTest
@@ -27,7 +27,7 @@ struct ArithmeticOperations {
     }
 }
 
-final class MovieQuizTests: XCTestCase {
+class MovieQuizTests: XCTestCase {
     
     func testAddition() throws {
         
