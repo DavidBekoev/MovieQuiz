@@ -1,13 +1,13 @@
 //
-//  MovieQuizUITestss.swift
-//  MovieQuizUITestss
+//  MovieQuizUITests.swift
+//  MovieQuizUITests
 //
 //  Created by Давид Бекоев on 27.06.2024.
 //
 
 import XCTest
 
-final class MovieQuizUITestss: XCTestCase {
+final class MovieQuizUITests: XCTestCase {
     // swiftlint:disable:next implicitly_unwrapped_optional
       var app: XCUIApplication!
       
@@ -71,9 +71,9 @@ final class MovieQuizUITestss: XCTestCase {
                sleep(2)
            }
 
-           let alert = app.alerts["Этот раунд окончен"]
+           let alert = app.alerts["Game Result"]
            XCTAssertTrue(alert.exists)
-           XCTAssertTrue(alert.label == "Этот раунд окончен")
+           XCTAssertTrue(alert.label == "Этот раунд окончен!")
            XCTAssertEqual(alert.buttons.firstMatch.label, "Сыграть еще раз")
        }
 
@@ -87,7 +87,7 @@ final class MovieQuizUITestss: XCTestCase {
                sleep(2)
            }
 
-           let alert = app.alerts["Этот раунд окончен"]
+           let alert = app.alerts["Game Result"]
            alert.buttons.firstMatch.tap()
 
            sleep(2)
